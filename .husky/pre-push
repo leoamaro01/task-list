@@ -5,7 +5,7 @@ Example:
     "git push --no-verify"
 '
 
-npm run test:unit -- --run || {
+npm run test || {
   echo "ERROR: The unit tests failed. Please address the issues before proceeding."
   exit 1
 }
