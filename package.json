@@ -10,7 +10,8 @@
     "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
     "component": "cypress open --component",
     "component:headless": "cypress run --component",
-    "prepare": "husky"
+    "prepare": "husky",
+    "cypress:open": "cypress open"
   },
   "engines": {
     "node": "^22.14.0",
