@@ -1,8 +1,9 @@
-import React from "react";
-
 import AboutComponent from "./about-component";
 
 import "../cypress/support/component";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React from "react";
 
 // Cypress Component Test
 describe("<AboutComponent />", () => {
