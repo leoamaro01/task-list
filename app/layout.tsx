@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+
 import "../styles/globals.css";
+
 import { ReactNode } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next.js with Cypress",
-  description: "Next.js with Cypress",
+  title: "Task-List",
+  description: "Task List App for cuban.engineer application",
   icons: {
     icon: "/favicon.ico",
   },
