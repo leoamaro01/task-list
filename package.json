@@ -11,7 +11,8 @@
     "component": "cypress open --component",
     "component:headless": "cypress run --component",
     "prepare": "husky",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "test": "npm run e2e:headless && npm run component:headless"
   },
   "engines": {
     "node": "^22.14.0",

@@ -1,1 +1,11 @@
-npm run build
+echo '
+INFO: This project uses a pre-push hook to run unit tests automatically.
+If needed, you can disable this with the "--no-verify" flag during the push.
+Example:
+    "git push --no-verify"
+'
+
+npm run test:unit -- --run || {
+  echo "ERROR: The unit tests failed. Please address the issues before proceeding."
+  exit 1
+}
