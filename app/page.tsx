@@ -1,70 +1,102 @@
-import Image from "next/image";
-import Link from "next/link";
+"use client";
 
-import styles from "../styles/Home.module.css";
+import { JSX, useState } from "react";
+
+import NewTask from "../components/new-task";
+import TaskCard from "../components/task-card";
+import { Task } from "./_types/task";
+
+const tasks: Task[] = [
+  new Task(
+    0,
+    "something @dev-team #alldone somebody@gmail.com check this www.google.com",
+    true
+  ),
+  new Task(
+    1,
+    "oh my a@example.com, is this your tag? @stupid-people #wtf",
+    true
+  ),
+  new Task(2, "wtf u guys talking about?", true),
+];
+
+function findTaskIndex(id: number): number {
+  const index = tasks.findIndex((t: Task) => t.id == id);
+  if (index < 0) {
+    console.error(`Failed to find task with id ${id}.`);
+    return -1;
+  }
+
+  return index;
+}
+
+function findTask(id: number): Task | null {
+  const index = tasks.findIndex((t: Task) => t.id == id);
+  if (index < 0) {
+    console.error(`Failed to find task with id ${id}.`);
+    return null;
+  }
+
+  return tasks[index];
+}
+
+function useForceRedraw() {
+  const [, setRefresh] = useState(true);
+
+  return () => setRefresh((a) => !a);
+}
 
 export default function Home() {
+  const forceRefresh = useForceRedraw();
+
+  const handleTaskToggled = (id: number, checked: boolean) => {
+    const task = findTask(id);
+    if (task) task.checked = checked;
+    forceRefresh();
+  };
+  const handleTaskSave = (id: number, newText: string) => {
+    const task = findTask(id);
+    console.info(`Saving value\n${newText}\nto task ${task} with id ${id}`);
+    if (task) task.text = newText;
+    forceRefresh();
+  };
+  const handleTaskDelete = (id: number) => {
+    const index = findTaskIndex(id);
+    if (index >= 0) {
+      tasks.splice(index, 1);
+    }
+    forceRefresh();
+  };
+  const handleAddNewTask = (text: string) => {
+    tasks.push(
+      new Task(
+        tasks.length == 0 ? 0 : tasks[tasks.length - 1].id + 1,
+        text,
+        false
+      )
+    );
+    forceRefresh();
+  };
+
+  const cards: JSX.Element[] = tasks
+    .toReversed()
+    .map((task) => (
+      <TaskCard
+        key={task.id}
+        taskId={task.id}
+        taskText={task.text}
+        taskChecked={task.checked}
+        onTaskToggled={handleTaskToggled}
+        onSave={handleTaskSave}
+        onDelete={handleTaskDelete}
+      />
+    ));
+
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{" "}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <Link href="/about" className={styles.card}>
-            <h2>About Page &rarr;</h2>
-            <p>Cypress will test if this link is working.</p>
-          </Link>
-
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{" "}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
+    <div className="mx-16 pt-16">
+      <h1 className="text-center text-2xl mb-10">Task-List</h1>
+      <NewTask onAddTask={handleAddNewTask} />
+      {cards}
     </div>
   );
 }
