@@ -1,6 +1,7 @@
 import css from "@eslint/css";
 import pluginJs from "@eslint/js";
 import pluginNext from "@next/eslint-plugin-next";
+import pluginQuery from "@tanstack/eslint-plugin-query";
 import parser from "@typescript-eslint/parser";
 import pluginReact from "eslint-plugin-react";
 import globals from "globals";
@@ -31,6 +32,7 @@ export default [
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  ...pluginQuery.configs["flat/recommended"],
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat["jsx-runtime"],
   {
@@ -60,5 +62,6 @@ export default [
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs["core-web-vitals"].rules,
     },
+    ignores: ["./lintstagedrc.mjs"],
   },
 ];
