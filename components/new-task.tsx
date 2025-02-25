@@ -4,6 +4,7 @@ import ContentEditable from "react-contenteditable";
 import sanitizeHtml from "sanitize-html";
 
 import { useOutsideClick } from "../hooks/use-outside-click";
+import { processTags } from "./_utils/processTags";
 import IconButton from "./icon-button";
 import CalendarIcon from "./svg/calendar";
 import CircleIcon from "./svg/circle";
@@ -22,61 +23,6 @@ export default function TaskCard({
   const [open, setOpen] = useState(false);
 
   const [isMobile, setIsMobile] = useState(false);
-
-  // #region Tags and regex
-  const atRegex = new RegExp(" @[^ ]+", "g");
-  const hashtagRegex = new RegExp(" #[^ ]+", "g");
-  const linkRegex = new RegExp(
-    " (?:http(?:s)?://)?(?:(?:[0-9]+[a-zA-Z]+[a-zA-Z0-9_-]*)|(?:[a-zA-Z]+[a-zA-Z0-9_-]*))(?:\\.(?:(?:[0-9]+[a-zA-Z]+[a-zA-Z0-9_-]*)|(?:[a-zA-Z]+[a-zA-Z0-9_-]*)))+(?:/[?#=&+a-zA-Z0-9_.-]+)*/?",
-    "g"
-  );
-  const emailRegex = new RegExp(
-    " [a-zA-Z0-9._%+-]+@[a-zA-Z0-9_-]+(?:\\.[a-zA-Z0-9_-]+)+",
-    "g"
-  );
-
-  const processTags = (text: string) => {
-    let value = text;
-
-    value = value.replaceAll(
-      atRegex,
-      (str) =>
-        ' <button onclick="event.stopPropagation()" style="color: oklch(0.448 0.119 151.328); background-color: oklch(0.871 0.15 154.449); border-radius: calc(infinity * 1px); padding-inline: 0.5rem;">' +
-        str.substring(1) +
-        "</button>"
-    );
-    value = value.replaceAll(
-      linkRegex,
-      (str) =>
-        " <button onclick=\"event.stopPropagation();window.open('" +
-        (!str.startsWith("https://") && !str.startsWith("http://")
-          ? "https://"
-          : "") +
-        str.substring(1) +
-        "', '_blank');\" style=\"color: oklch(0.488 0.243 264.376); background-color: oklch(0.809 0.105 251.813); border-radius: calc(infinity * 1px); padding-inline: 0.5rem;\">" +
-        str.substring(1) +
-        "</button>"
-    );
-    value = value.replaceAll(
-      hashtagRegex,
-      (str) =>
-        ' <button onclick="event.stopPropagation()" style="color: oklch(0.432 0.232 292.759); background-color: oklch(0.811 0.111 293.571); border-radius: calc(infinity * 1px); padding-inline: 0.5rem;">' +
-        str.substring(1) +
-        "</button>"
-    );
-    value = value.replaceAll(
-      emailRegex,
-      (str) =>
-        ' <button onclick="event.stopPropagation()" style="color: oklch(0.705 0.213 47.604); background-color: oklch(0.901 0.076 70.697); border-radius: calc(infinity * 1px); padding-inline: 0.5rem;">' +
-        str.substring(1) +
-        "</button>"
-    );
-
-    if (!value.endsWith(" ") && value != "") value += " ";
-
-    return value;
-  };
-  // #endregion
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 1230);
@@ -114,6 +60,14 @@ export default function TaskCard({
   };
   //#endregion
 
+  const handleSubmit = () => {
+    if (!open) return;
+
+    handleTextAreaBlur();
+
+    if (displayedTaskText.trim() != "") handleSave();
+  };
+
   const handleSave = () => {
     onAddTask(cleanTaskText.current);
     cleanTaskText.current = "";
@@ -150,6 +104,15 @@ export default function TaskCard({
           (!open ? "hover:cursor-pointer " : "") +
           "size-full border-none border-0 focus:outline-none resize-none text-black"
         }
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key == "Enter") {
+            e.preventDefault();
+            handleSubmit();
+          } else if (e.key == "Escape") {
+            e.preventDefault();
+            handleCancel();
+          }
+        }}
         aria-placeholder={"Type to add a new task"}
       />
       {open && (
@@ -183,8 +146,6 @@ export default function TaskCard({
           "bg-gray-200 text-gray-400 transition-colors"
         }
         onClick={() => {}}
-        isSubmit={false}
-        isReset={false}
       />
       <IconButton
         icon={<CalendarIcon />}
@@ -199,8 +160,6 @@ export default function TaskCard({
           "outline-current-color text-gray-300 transition-colors"
         }
         onClick={() => {}}
-        isSubmit={false}
-        isReset={false}
       />
       <IconButton
         icon={<UnlockIcon />}
@@ -215,8 +174,6 @@ export default function TaskCard({
           "outline-current-color text-gray-300 transition-colors"
         }
         onClick={() => {}}
-        isSubmit={false}
-        isReset={false}
       />
       <IconButton
         icon={<LoaderIcon />}
@@ -231,8 +188,6 @@ export default function TaskCard({
           "outline-current-color text-gray-300 transition-colors"
         }
         onClick={() => {}}
-        isSubmit={false}
-        isReset={false}
       />
       <IconButton
         icon={
@@ -254,8 +209,6 @@ export default function TaskCard({
           "outline-current-color text-gray-300 transition-colors"
         }
         onClick={() => {}}
-        isSubmit={false}
-        isReset={false}
       />
       {isMobile ? (
         displayedTaskText.trim() != "" ? (
@@ -266,8 +219,6 @@ export default function TaskCard({
             onClick={handleSave}
             disabled={false}
             disabledStyle=""
-            isSubmit={true}
-            isReset={false}
           />
         ) : (
           <IconButton
@@ -277,8 +228,6 @@ export default function TaskCard({
             onClick={handleCancel}
             disabled={false}
             disabledStyle=""
-            isSubmit={false}
-            isReset={true}
           />
         )
       ) : (
@@ -290,8 +239,6 @@ export default function TaskCard({
             onClick={handleCancel}
             disabled={false}
             disabledStyle=""
-            isSubmit={false}
-            isReset={true}
           />
           {displayedTaskText.trim() == "" ? (
             <IconButton
@@ -301,8 +248,6 @@ export default function TaskCard({
               onClick={handleCancel}
               disabled={false}
               disabledStyle=""
-              isSubmit={false}
-              isReset={false}
             />
           ) : (
             <IconButton
@@ -312,8 +257,6 @@ export default function TaskCard({
               onClick={handleSave}
               disabled={false}
               disabledStyle=""
-              isSubmit={true}
-              isReset={false}
             />
           )}
         </>
@@ -322,21 +265,19 @@ export default function TaskCard({
   );
 
   return (
-    <form method="" onReset={handleCancel} onSubmit={handleSave}>
-      <div
-        ref={ref}
-        className={
-          (open ? "border-gray-200 shadow-sm mb-4 " : "border-transparent ") +
-          " border rounded-s"
-        }
-      >
-        <div className="p-1.5 pb-6">{taskInput}</div>
-        {open && (
-          <div className="bg-gray-50 p-1.5 border-transparent border-t-gray-200 border">
-            {actions}
-          </div>
-        )}
-      </div>
-    </form>
+    <div
+      ref={ref}
+      className={
+        (open ? "border-gray-200 shadow-sm mb-4 " : "border-transparent ") +
+        " border rounded-s"
+      }
+    >
+      <div className="p-1.5 pb-6">{taskInput}</div>
+      {open && (
+        <div className="bg-gray-50 p-1.5 border-transparent border-t-gray-200 border">
+          {actions}
+        </div>
+      )}
+    </div>
   );
 }

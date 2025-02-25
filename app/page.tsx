@@ -1,102 +1,130 @@
 "use client";
 
-import { JSX, useState } from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
-import NewTask from "../components/new-task";
-import TaskCard from "../components/task-card";
-import { Task } from "./_types/task";
+import TaskList from "../components/task-list";
+import { Task } from "../types/task";
 
-const tasks: Task[] = [
-  new Task(
-    0,
-    "something @dev-team #alldone somebody@gmail.com check this www.google.com",
-    true
-  ),
-  new Task(
-    1,
-    "oh my a@example.com, is this your tag? @stupid-people #wtf",
-    true
-  ),
-  new Task(2, "wtf u guys talking about?", true),
-];
+const backendUrl = "http://localhost:30001";
+const queryClient = new QueryClient();
+let tasksCache: Task[];
 
-function findTaskIndex(id: number): number {
-  const index = tasks.findIndex((t: Task) => t.id == id);
-  if (index < 0) {
-    console.error(`Failed to find task with id ${id}.`);
-    return -1;
-  }
-
-  return index;
+function fetchTasks() {
+  return fetch(backendUrl + "/task")
+    .then((res) => res.json())
+    .then((data) => data.items);
 }
 
-function findTask(id: number): Task | null {
-  const index = tasks.findIndex((t: Task) => t.id == id);
-  if (index < 0) {
-    console.error(`Failed to find task with id ${id}.`);
-    return null;
-  }
-
-  return tasks[index];
+function updateTask({
+  id,
+  text,
+  checked,
+}: {
+  id: number;
+  text: string | undefined;
+  checked: boolean | undefined;
+}) {
+  return fetch(`${backendUrl}/task/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text,
+      checked,
+    }),
+  });
 }
 
-function useForceRedraw() {
-  const [, setRefresh] = useState(true);
-
-  return () => setRefresh((a) => !a);
+function addNewTask(text: string) {
+  return fetch(backendUrl + "/task", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text,
+    }),
+  });
 }
 
-export default function Home() {
-  const forceRefresh = useForceRedraw();
+async function deleteTask(id: number) {
+  return fetch(`${backendUrl}/task/${id}`, { method: "delete" });
+}
 
-  const handleTaskToggled = (id: number, checked: boolean) => {
-    const task = findTask(id);
-    if (task) task.checked = checked;
-    forceRefresh();
-  };
-  const handleTaskSave = (id: number, newText: string) => {
-    const task = findTask(id);
-    console.info(`Saving value\n${newText}\nto task ${task} with id ${id}`);
-    if (task) task.text = newText;
-    forceRefresh();
-  };
-  const handleTaskDelete = (id: number) => {
-    const index = findTaskIndex(id);
-    if (index >= 0) {
-      tasks.splice(index, 1);
-    }
-    forceRefresh();
-  };
-  const handleAddNewTask = (text: string) => {
-    tasks.push(
-      new Task(
-        tasks.length == 0 ? 0 : tasks[tasks.length - 1].id + 1,
-        text,
-        false
-      )
-    );
-    forceRefresh();
-  };
+export default function App() {
+  return (
+    // Provide the client to your App
+    <QueryClientProvider client={queryClient}>
+      <Home />
+    </QueryClientProvider>
+  );
+}
 
-  const cards: JSX.Element[] = tasks
-    .toReversed()
-    .map((task) => (
-      <TaskCard
-        key={task.id}
-        taskId={task.id}
-        taskText={task.text}
-        taskChecked={task.checked}
-        onTaskToggled={handleTaskToggled}
-        onSave={handleTaskSave}
-        onDelete={handleTaskDelete}
-      />
-    ));
+function Home() {
+  const queryclient = useQueryClient();
+
+  // Data Fetching
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ["fetch-tasks"],
+    queryFn: fetchTasks,
+    refetchInterval: 10000,
+  });
+
+  const createNewTaskMutation = useMutation({
+    mutationFn: addNewTask,
+    onSuccess: () => {
+      queryclient.invalidateQueries({ queryKey: ["fetch-tasks"] });
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: updateTask,
+    onSuccess: () => {
+      queryclient.invalidateQueries({ queryKey: ["fetch-tasks"] });
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: deleteTask,
+    onSuccess: () => {
+      queryclient.invalidateQueries({ queryKey: ["fetch-tasks"] });
+    },
+  });
+
+  if (isError) return <span>Error: {error.message}</span>;
+
+  if (!isPending)
+    // High TypeScript sin, but alas, React Query has horrible typing.
+    tasksCache = data as unknown as Task[];
+
+  if (tasksCache == undefined) return <></>;
 
   return (
-    <div className="mx-16 pt-16">
-      <h1 className="text-center text-2xl mb-10">Task-List</h1>
-      <NewTask onAddTask={handleAddNewTask} />
-      {cards}
+    <div>
+      <TaskList
+        onAddTask={(text) => createNewTaskMutation.mutate(text)}
+        onTaskDelete={(id) => deleteTaskMutation.mutate(id)}
+        onTaskToggle={(id, checked) =>
+          updateTaskMutation.mutate({ id, checked, text: undefined })
+        }
+        onTaskUpdate={(id, text) =>
+          updateTaskMutation.mutate({ id, checked: undefined, text })
+        }
+        tasks={tasksCache.map((tasksCache) => {
+          return {
+            id: tasksCache.id,
+            text: tasksCache.text,
+            checked: tasksCache.checked,
+          };
+        })}
+      />
     </div>
   );
 }

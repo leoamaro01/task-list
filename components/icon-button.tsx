@@ -7,8 +7,6 @@ export default function IconButton({
   disabled,
   styleClass,
   disabledStyle,
-  isSubmit,
-  isReset,
 }: {
   text: string;
   icon: JSX.Element | null;
@@ -16,12 +14,9 @@ export default function IconButton({
   disabled: boolean;
   styleClass: string;
   disabledStyle: string;
-  isSubmit: boolean;
-  isReset: boolean;
 }) {
   return (
     <button
-      type={isSubmit ? "submit" : isReset ? "reset" : "button"}
       className={
         (disabled ? disabledStyle : styleClass + " hover:cursor-pointer") +
         " py-2 px-3 rounded-sm"
