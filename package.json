@@ -6,13 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
-    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
-    "component": "cypress open --component",
-    "component:headless": "cypress run --component",
+    "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e --config viewportWidth=1500 viewportHeight=1000\"",
+    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e --config viewportWidth=1500 viewportHeight=1000\"",
+    "e2e:mobile": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e --config viewportWidth=800 viewportHeight=1000\"",
+    "e2e:mobile:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e --config viewportWidth=800 viewportHeight=1000\"",
+    "component": "cypress open --component --config viewportWidth=1500 viewportHeight=1000",
+    "component:headless": "cypress run --component --config viewportWidth=1500 viewportHeight=1000",
+    "component:mobile": "cypress open --component --config viewportWidth=800 viewportHeight=1000",
+    "component:mobile:headless": "cypress run --component --config viewportWidth=800 viewportHeight=1000",
     "prepare": "husky",
     "cypress:open": "cypress open",
-    "test": "npm run e2e:headless && npm run component:headless"
+    "test": "npm run e2e:headless && npm run component:headless && npm run e2e:mobile:headless && npm run component:mobile:headless"
   },
   "engines": {
     "node": "^22.14.0",

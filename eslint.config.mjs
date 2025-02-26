@@ -62,6 +62,6 @@ export default [
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs["core-web-vitals"].rules,
     },
-    ignores: ["./lintstagedrc.mjs"],
+    ignores: ["./lintstagedrc.mjs", "./node_modules/*"],
   },
 ];

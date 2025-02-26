@@ -10,8 +10,8 @@ import {
 
 import TaskList from "../components/task-list";
 import { Task } from "../types/task";
+import { backendUrl } from "../utils/backendUrl";
 
-const backendUrl = "http://localhost:30001";
 const queryClient = new QueryClient();
 let tasksCache: Task[];
 

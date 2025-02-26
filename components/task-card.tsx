@@ -4,7 +4,7 @@ import ContentEditable from "react-contenteditable";
 import sanitizeHtml from "sanitize-html";
 
 import { useOutsideClick } from "../hooks/use-outside-click";
-import { processTags } from "./_utils/processTags";
+import { processTags } from "../utils/processTags";
 import IconButton from "./icon-button";
 import CalendarIcon from "./svg/calendar";
 import CircleIcon from "./svg/circle";
@@ -124,6 +124,7 @@ export default function TaskCard({
   const taskInput = (
     <div onClick={open ? undefined : handleOnInputClick} className="flex gap-2">
       <input
+        data-cy="task-checkbox"
         type="checkbox"
         checked={taskChecked}
         // so clicking the toggle doesn't open the task
@@ -136,6 +137,7 @@ export default function TaskCard({
         className="size-6 mx-2"
       />
       <ContentEditable
+        data-cy="text-area"
         html={displayedTaskText}
         onChange={(e) => handleTextAreaChange(e.target.value)}
         onBlur={handleTextAreaBlur}
@@ -180,9 +182,6 @@ export default function TaskCard({
           (isMobile ? "" : "mr-8 ") +
           "bg-gray-300 text-gray-800 active:bg-gray-100 active:text-gray-300 transition-colors"
         }
-        disabled={false}
-        disabledStyle={(isMobile ? "" : "mr-8 ") + "bg-gray-200 text-gray-400"}
-        onClick={() => {}}
       />
       <IconButton
         icon={<CalendarIcon />}
@@ -196,7 +195,6 @@ export default function TaskCard({
           (isMobile ? "" : "outline-1 ") +
           "outline-current-color text-gray-300 transition-colors"
         }
-        onClick={() => {}}
       />
       <IconButton
         icon={<UnlockIcon />}
@@ -210,7 +208,6 @@ export default function TaskCard({
           (isMobile ? "" : "outline-1 ") +
           "outline-current-color text-gray-300 transition-colors"
         }
-        onClick={() => {}}
       />
       <IconButton
         icon={<LoaderIcon />}
@@ -224,7 +221,6 @@ export default function TaskCard({
           (isMobile ? "" : "outline-1 ") +
           "outline-current-color text-gray-300 transition-colors"
         }
-        onClick={() => {}}
       />
       <IconButton
         icon={
@@ -245,9 +241,9 @@ export default function TaskCard({
           (isMobile ? "" : "outline-1 ") +
           "outline-current-color text-gray-300 transition-colors"
         }
-        onClick={() => {}}
       />
       <IconButton
+        dataCy="delete-button"
         icon={<TrashIcon />}
         text={isMobile ? "" : "Delete"}
         styleClass={
@@ -255,8 +251,6 @@ export default function TaskCard({
           "outline-current-color text-red-400 active:text-gray-200 transition-colors"
         }
         onClick={() => onDelete(taskId)}
-        disabled={false}
-        disabledStyle=""
       />
       {isMobile ? (
         displayedTaskText.trim() == "" ? (
@@ -265,56 +259,45 @@ export default function TaskCard({
             text=""
             styleClass="ml-auto bg-red-400 active:bg-gray-100 active:text-white transition-colors"
             onClick={() => onDelete(taskId)}
-            disabled={false}
-            disabledStyle=""
           />
         ) : displayedTaskText.trim() != defaultTaskText.current.trim() ? (
           <IconButton
+            dataCy="save-button"
             icon={<SaveIcon />}
             text=""
             styleClass="ml-auto bg-blue-500 text-white active:text-white active:bg-gray-100 transition-colors"
             onClick={handleSave}
-            disabled={false}
-            disabledStyle=""
           />
         ) : (
           <IconButton
+            dataCy="cancel-button"
             icon={<XIcon />}
             text=""
             styleClass="ml-auto bg-blue-500 text-white active:text-white active:bg-gray-100 transition-colors"
             onClick={handleCancel}
-            disabled={false}
-            disabledStyle=""
           />
         )
       ) : (
         <>
           <IconButton
-            icon={null}
+            dataCy="cancel-button"
             text="Cancel"
             styleClass="ml-auto text-gray-800 bg-gray-200 active:text-gray-300 active:bg-gray-100 transition-colors"
             onClick={handleCancel}
-            disabled={false}
-            disabledStyle=""
           />
           {/* This Ok button thing was not in the technical test instructions but it works like that on alldone.app */}
           {displayedTaskText.trim() == "" ? (
             <IconButton
-              icon={null}
               text="Ok"
               styleClass="bg-red-400 active:bg-gray-100 active:text-white transition-colors"
               onClick={() => onDelete(taskId)}
-              disabled={false}
-              disabledStyle=""
             />
           ) : (
             <IconButton
-              icon={null}
+              dataCy="save-button"
               text="Save"
               styleClass="bg-blue-500 text-white active:text-white active:bg-gray-100 transition-colors"
               onClick={handleSave}
-              disabled={false}
-              disabledStyle=""
             />
           )}
         </>
@@ -324,6 +307,7 @@ export default function TaskCard({
 
   return (
     <div
+      data-cy="task-card"
       ref={ref}
       className={
         (open ? "border-gray-200 shadow-sm mb-4" : "border-transparent") +
@@ -332,7 +316,10 @@ export default function TaskCard({
     >
       <div className="p-1.5 pb-6">{taskInput}</div>
       {open && (
-        <div className="bg-gray-50 p-1.5 border-transparent border-t-gray-200 border">
+        <div
+          data-cy="actions-bar"
+          className="bg-gray-50 p-1.5 border-transparent border-t-gray-200 border"
+        >
           {actions}
         </div>
       )}

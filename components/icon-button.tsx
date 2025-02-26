@@ -1,33 +1,32 @@
 import { JSX } from "react";
 
-export default function IconButton({
-  text,
-  icon,
-  onClick,
-  disabled,
-  styleClass,
-  disabledStyle,
-}: {
-  text: string;
-  icon: JSX.Element | null;
-  onClick: () => void;
-  disabled: boolean;
-  styleClass: string;
-  disabledStyle: string;
-}) {
+interface IconButtonProps {
+  text?: string | undefined;
+  icon?: JSX.Element | undefined;
+  onClick?: () => void | undefined;
+  disabled?: boolean | undefined;
+  styleClass?: string | undefined;
+  disabledStyle?: string | undefined;
+  dataCy?: string | undefined;
+}
+
+export default function IconButton(props: IconButtonProps) {
   return (
     <button
+      data-cy={props.dataCy}
       className={
-        (disabled ? disabledStyle : styleClass + " hover:cursor-pointer") +
-        " py-2 px-3 rounded-sm"
+        (props.disabled
+          ? (props.disabledStyle ?? "")
+          : (props.styleClass ?? "") + " hover:cursor-pointer") +
+        " py-2 px-3 rounded-sm text-sm gap-2 flex items-center"
       }
-      onClick={disabled ? undefined : onClick}
-      disabled={disabled}
+      onClick={props.disabled ? undefined : props.onClick}
+      disabled={props.disabled}
     >
-      <div className="text-sm gap-2 flex items-center">
-        {icon}
-        {text != "" && <b>{text}</b>}
-      </div>
+      {props.icon}
+      {props.text && props.text != "" && (
+        <b data-cy="button-text">{props.text}</b>
+      )}
     </button>
   );
 }
