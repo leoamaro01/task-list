@@ -1,27 +1,52 @@
-# Next.js + Cypress
+# Task List
 
-This example shows how to configure Cypress to work with Next.js.
+This is a front-end source code of the Task List app for the cuban.engineer technical test.
 
-## Deploy your own
+Download the back-end server from [here](https://www.github.com/leoamaro01/task-list-backend)
+to be able to use this app. It will not work if the back-end is not running.
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-cypress)
+It was made using Next.js with TailwindCSS for styling. Back-end queries were done using TanStack's React Query.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-cypress&project-name=with-cypress&repository-name=with-cypress)
-
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+To run the front-end, you must first run:
 
 ```bash
-npx create-next-app --example with-cypress with-cypress-app
+npm install
 ```
+
+To install the required dependencies (this might take a while), and athen
 
 ```bash
-yarn create next-app --example with-cypress with-cypress-app
+npm run build
 ```
+
+To make Next.js create an optimized build of the site, and then:
 
 ```bash
-pnpm create next-app --example with-cypress with-cypress-app
+npm start
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+To actually start the server.
+
+You can then visit it at http://localhost:3000
+
+# Testing
+
+You can run:
+
+```bash
+npm test
+```
+
+To automatically run all tests headlessly with Cypress (component and e2e, both with mobile variants for each test).
+
+If you want to check out the tests and run them manually, you can use:
+
+```bash
+npx cypress open
+```
+
+Which will open the Cypress UI.
+
+# Dependencies
+
+The project depends on Node.js v22.14.0 and npm v10.9.2, which are the latest LTS releases at the time of writing.
